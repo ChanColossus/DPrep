@@ -57,8 +57,7 @@ exports.newIg = async (req, res, next) => {
             try {
                 const result = await cloudinary.v2.uploader.upload(gimageDataUri, {
                     folder: 'infographics',
-                    width: 150,
-                    crop: 'scale',
+                    
                 });
 
                 gimagesLinks.push({

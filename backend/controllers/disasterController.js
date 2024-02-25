@@ -18,8 +18,7 @@ exports.newDisaster = async (req, res, next) => {
     try {
       const result = await cloudinary.v2.uploader.upload(imageDataUri, {
         folder: "disaster",
-        width: 150,
-        crop: "scale",
+       
       });
 
       imagesLinks.push({
