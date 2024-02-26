@@ -1,271 +1,132 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemText from '@mui/material/ListItemText';
+import CommentIcon from '@mui/icons-material/Comment';
+import IconButton from '@mui/material/IconButton';
 import Box from '@mui/material/Box';
-import Button from '@mui/material/Button';
-import Card from '@mui/material/Card';
-import Chip from '@mui/material/Chip';
-import Container from '@mui/material/Container';
-import Grid from '@mui/material/Grid';
-import Link from '@mui/material/Link';
-import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
-import DevicesRoundedIcon from '@mui/icons-material/DevicesRounded';
-import EdgesensorHighRoundedIcon from '@mui/icons-material/EdgesensorHighRounded';
-import ViewQuiltRoundedIcon from '@mui/icons-material/ViewQuiltRounded';
+import Modal from '@mui/material/Modal';
+import Backdrop from '@mui/material/Backdrop';
+import Fade from '@mui/material/Fade';
+import Button from '@mui/material/Button';
+import Carousel from 'react-elastic-carousel';
+import Grid from '@mui/material/Grid';
 
-const items = [
-  {
-    icon: <ViewQuiltRoundedIcon />,
-    title: 'Dashboard',
-    description:
-      'This item could provide a snapshot of the most important metrics or data points related to the product.',
-    imageLight: 'url("/static/images/templates/templates-images/dash-light.png")',
-    imageDark: 'url("/static/images/templates/templates-images/dash-dark.png")',
-  },
-  {
-    icon: <EdgesensorHighRoundedIcon />,
-    title: 'Mobile integration',
-    description:
-      'This item could provide information about the mobile app version of the product.',
-    imageLight: 'url("/static/images/templates/templates-images/mobile-light.png")',
-    imageDark: 'url("/static/images/templates/templates-images/mobile-dark.png")',
-  },
-  {
-    icon: <DevicesRoundedIcon />,
-    title: 'Available on all platforms',
-    description:
-      'This item could let users know the product is available on all platforms, such as web, mobile, and desktop.',
-    imageLight: 'url("/static/images/templates/templates-images/devices-light.png")',
-    imageDark: 'url("/static/images/templates/templates-images/devices-dark.png")',
-  },
-];
+export default function GutterlessList() {
+  const [reports, setReports] = useState([]);
+  const [selectedReport, setSelectedReport] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
 
-export default function Features() {
-  const [selectedItemIndex, setSelectedItemIndex] = React.useState(0);
+  useEffect(() => {
+    fetchReports();
+  }, []);
 
-  const handleItemClick = (index) => {
-    setSelectedItemIndex(index);
+  const fetchReports = async () => {
+    try {
+      const response = await fetch("http://localhost:4001/api/v1/reports");
+      const data = await response.json();
+      // Sort the reports array based on the date property in descending order
+      const sortedReports = data.reports.sort((a, b) => new Date(b.date) - new Date(a.date));
+      setReports(sortedReports.slice(0, 4));
+    } catch (error) {
+      console.error('Error fetching reports:', error);
+    }
   };
 
-  const selectedFeature = items[selectedItemIndex];
+  const handleReportClick = (report) => {
+    setSelectedReport(report);
+    setOpenModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setOpenModal(false);
+  };
 
   return (
-    <Container id="features" sx={{ py: { xs: 8, sm: 16 } }}>
-      <Grid container spacing={6}>
-        <Grid item xs={12} md={6}>
-          <div>
-            <Typography component="h2" variant="h4" color="text.primary">
-              Product features
-            </Typography>
-            <Typography
-              variant="body1"
-              color="text.secondary"
-              sx={{ mb: { xs: 2, sm: 4 } }}
+    <Box display="flex" justifyContent="center">
+      <Box width="80%">
+        <Box textAlign="center">
+          <Typography variant="h2" gutterBottom>
+            Recent Reports
+          </Typography>
+        </Box>
+        <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
+          {reports.map((report) => (
+            <ListItem
+              key={report._id}
+              disableGutters
+              secondaryAction={
+                <IconButton aria-label="comment" onClick={() => handleReportClick(report)}>
+                  <CommentIcon /><Typography variant="body2" color="textSecondary">Click to view details</Typography>
+                </IconButton>
+              }
             >
-              Here you can provide a brief overview of the key features of the
-              product. For example, you could list the number of features, the types
-              of features, add-ons, or the benefits of the features.
-            </Typography>
-          </div>
-          <Grid container item gap={1} sx={{ display: { xs: 'auto', sm: 'none' } }}>
-            {items.map(({ title }, index) => (
-              <Chip
-                key={index}
-                label={title}
-                onClick={() => handleItemClick(index)}
-                sx={{
-                  borderColor: (theme) => {
-                    if (theme.palette.mode === 'light') {
-                      return selectedItemIndex === index ? 'primary.light' : '';
-                    }
-                    return selectedItemIndex === index ? 'primary.light' : '';
-                  },
-                  background: (theme) => {
-                    if (theme.palette.mode === 'light') {
-                      return selectedItemIndex === index ? 'none' : '';
-                    }
-                    return selectedItemIndex === index ? 'none' : '';
-                  },
-                  backgroundColor: selectedItemIndex === index ? 'primary.main' : '',
-                  '& .MuiChip-label': {
-                    color: selectedItemIndex === index ? '#fff' : '',
-                  },
-                }}
-              />
-            ))}
-          </Grid>
-          <Box
-            component={Card}
-            variant="outlined"
-            sx={{
-              display: { xs: 'auto', sm: 'none' },
-              mt: 4,
-            }}
-          >
-            <Box
-              sx={{
-                backgroundImage: (theme) =>
-                  theme.palette.mode === 'light'
-                    ? items[selectedItemIndex].imageLight
-                    : items[selectedItemIndex].imageDark,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                minHeight: 280,
-              }}
-            />
-            <Box sx={{ px: 2, pb: 2 }}>
-              <Typography color="text.primary" variant="body2" fontWeight="bold">
-                {selectedFeature.title}
-              </Typography>
-              <Typography color="text.secondary" variant="body2" sx={{ my: 0.5 }}>
-                {selectedFeature.description}
-              </Typography>
-              <Link
-                color="primary"
-                variant="body2"
-                fontWeight="bold"
-                sx={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  '& > svg': { transition: '0.2s' },
-                  '&:hover > svg': { transform: 'translateX(2px)' },
-                }}
-              >
-                <span>Learn more</span>
-                <ChevronRightRoundedIcon
-                  fontSize="small"
-                  sx={{ mt: '1px', ml: '2px' }}
-                />
-              </Link>
-            </Box>
-          </Box>
-          <Stack
-            direction="column"
-            justifyContent="center"
-            alignItems="flex-start"
-            spacing={2}
-            useFlexGap
-            sx={{ width: '100%', display: { xs: 'none', sm: 'flex' } }}
-          >
-            {items.map(({ icon, title, description }, index) => (
-              <Card
-                key={index}
-                component={Button}
-                onClick={() => handleItemClick(index)}
-                sx={{
-                  p: 3,
-                  height: 'fit-content',
-                  width: '100%',
-                  background: 'none',
-                  backgroundColor:
-                    selectedItemIndex === index ? 'action.selected' : undefined,
-                  borderColor: (theme) => {
-                    if (theme.palette.mode === 'light') {
-                      return selectedItemIndex === index
-                        ? 'primary.light'
-                        : 'grey.200';
-                    }
-                    return selectedItemIndex === index ? 'primary.dark' : 'grey.800';
-                  },
-                }}
-              >
-                <Box
-                  sx={{
-                    width: '100%',
-                    display: 'flex',
-                    textAlign: 'left',
-                    flexDirection: { xs: 'column', md: 'row' },
-                    alignItems: { md: 'center' },
-                    gap: 2.5,
-                  }}
-                >
-                  <Box
-                    sx={{
-                      color: (theme) => {
-                        if (theme.palette.mode === 'light') {
-                          return selectedItemIndex === index
-                            ? 'primary.main'
-                            : 'grey.300';
-                        }
-                        return selectedItemIndex === index
-                          ? 'primary.main'
-                          : 'grey.700';
-                      },
-                    }}
-                  >
-                    {icon}
-                  </Box>
-                  <div>
-                    <Typography
-                      color="text.primary"
-                      variant="body2"
-                      fontWeight="bold"
-                    >
-                      {title}
-                    </Typography>
-                    <Typography
-                      color="text.secondary"
-                      variant="body2"
-                      sx={{ my: 0.5 }}
-                    >
-                      {description}
-                    </Typography>
-                    <Link
-                      color="primary"
-                      variant="body2"
-                      fontWeight="bold"
-                      sx={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        '& > svg': { transition: '0.2s' },
-                        '&:hover > svg': { transform: 'translateX(2px)' },
-                      }}
-                      onClick={(event) => {
-                        event.stopPropagation();
-                      }}
-                    >
-                      <span>Learn more</span>
-                      <ChevronRightRoundedIcon
-                        fontSize="small"
-                        sx={{ mt: '1px', ml: '2px' }}
-                      />
-                    </Link>
-                  </div>
-                </Box>
-              </Card>
-            ))}
-          </Stack>
-        </Grid>
-        <Grid
-          item
-          xs={12}
-          md={6}
-          sx={{ display: { xs: 'none', sm: 'flex' }, width: '100%' }}
+              <ListItemText primary={`${new Date(report.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} - ${report.disaster.name} - ${report.area.bname}`} />
+            </ListItem>
+          ))}
+        </List>
+        <Modal
+          aria-labelledby="transition-modal-title"
+          aria-describedby="transition-modal-description"
+          open={openModal}
+          onClose={handleCloseModal}
+          closeAfterTransition
+          BackdropComponent={Backdrop}
+          BackdropProps={{
+            timeout: 500,
+          }}
         >
-          <Card
-            variant="outlined"
-            sx={{
-              height: '100%',
-              width: '100%',
-              display: { xs: 'none', sm: 'flex' },
-              pointerEvents: 'none',
-            }}
-          >
+          <Fade in={openModal}>
             <Box
               sx={{
-                m: 'auto',
-                width: 420,
-                height: 500,
-                backgroundSize: 'contain',
-                backgroundImage: (theme) =>
-                  theme.palette.mode === 'light'
-                    ? items[selectedItemIndex].imageLight
-                    : items[selectedItemIndex].imageDark,
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: 800,
+                bgcolor: 'background.paper',
+                border: '2px solid #000',
+                boxShadow: 24,
+                p: 4,
               }}
-            />
-          </Card>
-        </Grid>
-      </Grid>
-    </Container>
+            >
+              <Typography id="transition-modal-title" variant="h6" component="h2" gutterBottom>
+                Report Details
+              </Typography>
+              {selectedReport && (
+                <Grid container spacing={2}>
+                  <Grid item xs={6}>
+                    <Typography variant="body1">
+                      Date: {new Date(selectedReport.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
+                    </Typography>
+                    <Typography variant="body1">
+                      Area: {selectedReport.area.bname}
+                    </Typography>
+                    <Typography variant="body1">
+                      Disaster: {selectedReport.disaster.name}
+                    </Typography>
+                    <Typography variant="body1">
+                      Affected Persons: {selectedReport.affectedPersons}
+                    </Typography>
+                    <Typography variant="body1">
+                      Casualties: {selectedReport.casualties}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Carousel>
+                      {selectedReport.area.bimages.map((images, index) => (
+                        <img key={index} src={images.url} alt={`Image ${index}`} style={{ maxWidth: '50%', height: '50%' }} />
+                      ))}
+                    </Carousel>
+                  </Grid>
+                </Grid>
+              )}
+              <Button onClick={handleCloseModal}>Close</Button>
+            </Box>
+          </Fade>
+        </Modal>
+      </Box>
+    </Box>
   );
 }

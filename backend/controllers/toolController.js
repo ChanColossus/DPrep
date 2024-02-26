@@ -3,7 +3,35 @@ const Disaster = require("../models/disaster");
 const APIFeatures = require("../utils/apiFeatures");
 const cloudinary = require("cloudinary");
 
-
+exports.calculateScore = async (req, res, next) => {
+    try {
+      const { disasterName, selectedTools } = req.body;
+  
+      // Fetch the disaster details based on its name
+      const disaster = await Disaster.findOne({ name: disasterName });
+  
+      if (!disaster) {
+        return res.status(404).json({ error: 'Disaster not found' });
+      }
+  
+      // Fetch the correct tools for the disaster by name
+      const correctTools = await Tool.find({ 'disasterTool.name': disasterName });
+  
+      // Get the list of correct tool IDs for the disaster
+      const correctToolIds = correctTools.map(tool => tool._id.toString());
+  
+      // Calculate the number of correct tools selected by the user
+      const correctSelectedTools = selectedTools.filter(toolId => correctToolIds.includes(toolId));
+  
+      // Calculate the score as a percentage
+      const scorePercentage = (correctSelectedTools.length / correctToolIds.length) * 100;
+  
+      res.json({ score: scorePercentage });
+    } catch (error) {
+      console.error('Error calculating score:', error);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  };
 exports.newTool = async (req, res, next) => {
     const { tname, tdescription, disasterNames } = req.body;
     console.log(req.files)

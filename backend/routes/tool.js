@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const upload = require("../utils/multer");
 const {
-  newTool,getTool,updateTool,deleteTool,getSingleTool
+  newTool,getTool,updateTool,deleteTool,getSingleTool,calculateScore
   } = require("../controllers/toolController");
 const { isAuthenticatedUser,authorizeRoles } = require('../middlewares/auth');
 
@@ -22,4 +22,5 @@ router
   .put(upload.array("timages", 10), updateTool)
   .delete(deleteTool);
 router.get("/tool/:id", getSingleTool);
+router.post("/calculate-score", calculateScore);
 module.exports = router

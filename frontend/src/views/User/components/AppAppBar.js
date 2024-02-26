@@ -15,14 +15,14 @@ import ToggleColorMode from './ToggleColorMode';
 import DPrepLogo from './Dpreplogo.png'
 import {logout } from "../../../utils/helpers";
 import axios from "axios";
-
+import { Link } from 'react-router-dom';
 const logoStyle = {
   width: '140px',
   height: 'auto',
   cursor: 'pointer',
 };
 
-function AppAppBar({ mode, toggleColorMode }) {
+function AppAppBar({ mode, toggleColorMode,theme }) {
   const [open, setOpen] = React.useState(false);
   const navigate = useNavigate();
   const toggleDrawer = (newOpen) => () => {
@@ -41,6 +41,9 @@ function AppAppBar({ mode, toggleColorMode }) {
       });
       setOpen(false);
     }
+  };
+  const handleNavigate = () => {
+    navigate('/home/toolSelector', { state: { theme: theme } });
   };
   const logoutUser = async () => {
   
@@ -99,18 +102,20 @@ function AppAppBar({ mode, toggleColorMode }) {
                 px: 0,
               }}
             >
-              <img
-                src={DPrepLogo}
-                style={logoStyle}
-                alt="logo of sitemark"
-              />
+               <Link to="/home/user">
+      <img
+        src={DPrepLogo}
+        style={logoStyle}
+        alt="logo of sitemark"
+      />
+    </Link>
               <Box sx={{ display: { xs: 'none', md: 'flex' } }}>
-                <MenuItem
-                  onClick={() => scrollToSection('features')}
-                  sx={{ py: '6px', px: '12px' }}
-                >
+              <MenuItem
+  onClick={handleNavigate}
+  sx={{ py: '6px', px: '12px' }}
+>
                   <Typography variant="body2" color="text.primary">
-                    Infographics
+                    Tool Selector
                   </Typography>
                 </MenuItem>
                 <MenuItem
